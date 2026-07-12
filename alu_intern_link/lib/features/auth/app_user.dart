@@ -2,7 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum UserRole {
   student,
-  startup;
+  startup,
+  // Admins verify startups. There is no sign-up path for this role — an
+  // ALU staff member's role field is set to "admin" by hand in the
+  // Firestore console, so nobody can grant themselves admin from the app.
+  admin;
 
   static UserRole? fromName(String? name) {
     if (name == null) return null;

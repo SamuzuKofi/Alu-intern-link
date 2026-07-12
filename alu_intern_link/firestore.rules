@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Admin accounts are set by hand in the console (see app_user.dart),
+    // so this just checks the caller's own user document for that flag.
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid);
+      allow delete: if false;
+    }
+
+    match /startups/{startupId} {
+      allow read: if isSignedIn();
+
+      // A founder can only create a startup owned by themself, and it
+      // always starts out "pending" - never verified on creation.
+      allow create: if isSignedIn() &&
+        request.resource.data.ownerUid == request.auth.uid &&
+        request.resource.data.status == 'pending';
+
+      // Founders can edit their own startup's details, but only an admin
+      // may change its verification status.
+      allow update: if isAdmin() ||
+        (isOwner(resource.data.ownerUid) &&
+         request.resource.data.status == resource.data.status);
+
+      allow delete: if false;
+    }
+  }
+}
