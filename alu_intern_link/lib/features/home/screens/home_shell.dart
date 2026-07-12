@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/widgets/coming_soon_placeholder.dart';
 import '../../auth/app_user.dart';
 import '../../auth/auth_providers.dart';
+import '../../opportunities/screens/discover_screen.dart';
 import '../../startups/screens/admin_verification_screen.dart';
 import '../../startups/screens/my_startup_screen.dart';
 
@@ -49,7 +50,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     }
 
     final tabs = [
-      const ComingSoonPlaceholder(icon: Icons.explore_rounded, label: 'Discover opportunities'),
+      const DiscoverScreen(),
       middleTab,
       _ProfileTab(appUser: widget.appUser),
     ];

@@ -42,5 +42,22 @@ service cloud.firestore {
 
       allow delete: if false;
     }
+
+    match /opportunities/{opportunityId} {
+      allow read: if isSignedIn();
+
+      // Only the owner of a startup that has actually been verified can
+      // post under it - this is the rule that stops an unverified/fake
+      // startup from ever appearing in Discover, enforced server-side.
+      allow create: if isSignedIn() &&
+        request.resource.data.postedByUid == request.auth.uid &&
+        get(/databases/$(database)/documents/startups/$(request.resource.data.startupId)).data.ownerUid == request.auth.uid &&
+        get(/databases/$(database)/documents/startups/$(request.resource.data.startupId)).data.status == 'verified';
+
+      // Only whoever posted it can edit it (e.g. open/close toggle).
+      allow update: if isSignedIn() && resource.data.postedByUid == request.auth.uid;
+
+      allow delete: if false;
+    }
   }
 }

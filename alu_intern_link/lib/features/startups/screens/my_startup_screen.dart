@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/validators.dart';
+import '../../opportunities/screens/create_opportunity_screen.dart';
+import '../../opportunities/screens/my_opportunities_section.dart';
 import '../startup.dart';
 import '../startup_providers.dart';
 
@@ -142,46 +144,68 @@ class _StartupProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final isVerified = startup.status == StartupStatus.verified;
+
+    return ListView(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(startup.name, style: Theme.of(context).textTheme.headlineSmall),
-              ),
-              _StatusBadge(status: startup.status),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(startup.industry, style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 16),
-          Text(startup.description),
-          if (startup.website != null) ...[
-            const SizedBox(height: 16),
-            Text(startup.website!, style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(startup.name, style: Theme.of(context).textTheme.headlineSmall),
+            ),
+            _StatusBadge(status: startup.status),
           ],
-          if (startup.status == StartupStatus.pending) ...[
-            const SizedBox(height: 24),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Icon(Icons.hourglass_top_rounded),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text('Waiting for an ALU admin to verify this startup.'),
-                    ),
-                  ],
-                ),
+        ),
+        const SizedBox(height: 4),
+        Text(startup.industry, style: Theme.of(context).textTheme.bodyMedium),
+        const SizedBox(height: 16),
+        Text(startup.description),
+        if (startup.website != null) ...[
+          const SizedBox(height: 16),
+          Text(startup.website!, style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+        ],
+        if (startup.status == StartupStatus.pending) ...[
+          const SizedBox(height: 24),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  const Icon(Icons.hourglass_top_rounded),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text('Waiting for an ALU admin to verify this startup.'),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ],
-      ),
+        const SizedBox(height: 24),
+        const Divider(),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: Text('Your opportunities', style: Theme.of(context).textTheme.titleMedium),
+            ),
+            if (isVerified)
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => CreateOpportunityScreen(startup: startup)),
+                ),
+                icon: const Icon(Icons.add),
+                label: const Text('Post'),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (!isVerified)
+          const Text('You can post opportunities once your startup is verified.')
+        else
+          MyOpportunitiesSection(startupId: startup.id),
+      ],
     );
   }
 }
