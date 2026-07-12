@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/widgets/coming_soon_placeholder.dart';
+import '../../applications/screens/my_applications_screen.dart';
 import '../../auth/app_user.dart';
 import '../../auth/auth_providers.dart';
 import '../../opportunities/screens/discover_screen.dart';
@@ -44,7 +44,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         middleLabel = 'Verify';
       case UserRole.student:
       case null:
-        middleTab = const ComingSoonPlaceholder(icon: Icons.assignment_rounded, label: 'My applications');
+        middleTab = MyApplicationsScreen(studentUid: widget.appUser.uid);
         middleIcon = Icons.assignment_outlined;
         middleLabel = 'Applications';
     }

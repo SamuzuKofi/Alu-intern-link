@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../applications/screens/applicants_screen.dart';
 import '../opportunity.dart';
 import '../opportunity_providers.dart';
 
@@ -51,8 +52,11 @@ class _OpportunityRow extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => ApplicantsScreen(opportunity: opportunity)),
+        ),
         title: Text(opportunity.title),
-        subtitle: Text('${opportunity.category.label} · ${opportunity.location.label}'),
+        subtitle: Text('${opportunity.category.label} · ${opportunity.location.label} · tap to view applicants'),
         trailing: Switch(
           value: isOpen,
           onChanged: (value) {

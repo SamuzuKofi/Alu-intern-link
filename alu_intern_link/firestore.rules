@@ -59,5 +59,27 @@ service cloud.firestore {
 
       allow delete: if false;
     }
+
+    match /applications/{applicationId} {
+      // Only the student who applied, the founder whose startup owns the
+      // opportunity, or an admin can see an application.
+      allow read: if isSignedIn() &&
+        (resource.data.studentUid == request.auth.uid ||
+         isAdmin() ||
+         get(/databases/$(database)/documents/startups/$(resource.data.startupId)).data.ownerUid == request.auth.uid);
+
+      // A student can only ever create an application as themself, and it
+      // always starts "pending".
+      allow create: if isSignedIn() &&
+        request.resource.data.studentUid == request.auth.uid &&
+        request.resource.data.status == 'pending';
+
+      // Only the founder who owns the opportunity's startup can move an
+      // application through review (pending/reviewed/accepted/rejected).
+      allow update: if isSignedIn() &&
+        get(/databases/$(database)/documents/startups/$(resource.data.startupId)).data.ownerUid == request.auth.uid;
+
+      allow delete: if false;
+    }
   }
 }
