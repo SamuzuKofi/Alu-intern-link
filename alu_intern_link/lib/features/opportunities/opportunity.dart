@@ -1,17 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart' show IconData, Icons;
 
 enum OpportunityCategory {
-  softwareDevelopment('Software Development'),
-  design('Design'),
-  marketing('Marketing'),
-  operations('Operations'),
-  research('Research'),
-  businessAnalysis('Business Analysis'),
-  contentCreation('Content Creation'),
-  communityManagement('Community Management');
+  softwareDevelopment('Software Development', Icons.code_rounded),
+  design('Design', Icons.palette_rounded),
+  marketing('Marketing', Icons.campaign_rounded),
+  operations('Operations', Icons.settings_rounded),
+  research('Research', Icons.science_rounded),
+  businessAnalysis('Business Analysis', Icons.bar_chart_rounded),
+  contentCreation('Content Creation', Icons.edit_note_rounded),
+  communityManagement('Community Management', Icons.groups_rounded);
 
-  const OpportunityCategory(this.label);
+  const OpportunityCategory(this.label, this.icon);
   final String label;
+  final IconData icon;
 
   static OpportunityCategory fromName(String? name) {
     for (final category in OpportunityCategory.values) {

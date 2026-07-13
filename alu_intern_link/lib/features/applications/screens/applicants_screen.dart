@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../../../core/widgets/initial_avatar.dart';
 import '../../opportunities/opportunity.dart';
 import '../application.dart';
 import '../application_providers.dart';
@@ -52,16 +53,38 @@ class _ApplicantCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              application.studentName.isNotEmpty ? application.studentName : application.studentEmail,
-              style: Theme.of(context).textTheme.titleMedium,
+            Row(
+              children: [
+                InitialAvatar(
+                  name: application.studentName.isNotEmpty
+                      ? application.studentName
+                      : application.studentEmail,
+                  size: 40,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        application.studentName.isNotEmpty
+                            ? application.studentName
+                            : application.studentEmail,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(application.studentEmail, style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Text(application.studentEmail, style: Theme.of(context).textTheme.bodySmall),
-            if (application.createdAt != null)
+            if (application.createdAt != null) ...[
+              const SizedBox(height: 8),
               Text(
                 'Applied ${timeago.format(application.createdAt!)}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+            ],
             const SizedBox(height: 12),
             Text(application.coverNote),
             const SizedBox(height: 12),

@@ -55,8 +55,12 @@ class _OpportunityRow extends ConsumerWidget {
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => ApplicantsScreen(opportunity: opportunity)),
         ),
+        leading: CircleAvatar(
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          child: Icon(opportunity.category.icon, color: Theme.of(context).colorScheme.onPrimaryContainer),
+        ),
         title: Text(opportunity.title),
-        subtitle: Text('${opportunity.category.label} · ${opportunity.location.label} · tap to view applicants'),
+        subtitle: Text('${opportunity.location.label} · tap to view applicants'),
         trailing: Switch(
           value: isOpen,
           onChanged: (value) {

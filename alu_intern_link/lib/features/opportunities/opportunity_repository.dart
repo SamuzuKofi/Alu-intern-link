@@ -23,6 +23,16 @@ class OpportunityRepository {
         .map((snapshot) => snapshot.docs.map(Opportunity.fromFirestore).toList());
   }
 
+  /// Used by the Saved Opportunities screen: a bookmark only stores a
+  /// title/startup snapshot, so opening the full detail screen means
+  /// looking the current opportunity data back up by id.
+  Stream<Opportunity?> watchOpportunityById(String opportunityId) {
+    return _opportunities.doc(opportunityId).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return Opportunity.fromFirestore(doc);
+    });
+  }
+
   Stream<List<Opportunity>> watchOpportunitiesForStartup(String startupId) {
     return _opportunities
         .where('startupId', isEqualTo: startupId)

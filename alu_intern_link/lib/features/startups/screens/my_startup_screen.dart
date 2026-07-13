@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/validators.dart';
+import '../../../core/widgets/initial_avatar.dart';
 import '../../opportunities/screens/create_opportunity_screen.dart';
 import '../../opportunities/screens/my_opportunities_section.dart';
 import '../startup.dart';
@@ -151,14 +152,21 @@ class _StartupProfileView extends StatelessWidget {
       children: [
         Row(
           children: [
+            InitialAvatar(name: startup.name, size: 56),
+            const SizedBox(width: 14),
             Expanded(
-              child: Text(startup.name, style: Theme.of(context).textTheme.headlineSmall),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(startup.name, style: Theme.of(context).textTheme.titleLarge),
+                  Text(startup.industry, style: Theme.of(context).textTheme.bodyMedium),
+                ],
+              ),
             ),
             _StatusBadge(status: startup.status),
           ],
         ),
-        const SizedBox(height: 4),
-        Text(startup.industry, style: Theme.of(context).textTheme.bodyMedium),
+        const SizedBox(height: 16),
         const SizedBox(height: 16),
         Text(startup.description),
         if (startup.website != null) ...[
@@ -223,10 +231,13 @@ class _StatusBadge extends StatelessWidget {
       StartupStatus.rejected => ('Rejected', Colors.red),
     };
 
-    return Chip(
-      label: Text(label, style: TextStyle(color: color)),
-      backgroundColor: color.withValues(alpha: 0.1),
-      side: BorderSide(color: color.withValues(alpha: 0.4)),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
     );
   }
 }

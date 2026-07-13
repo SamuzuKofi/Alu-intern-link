@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../../../core/widgets/initial_avatar.dart';
 import '../../applications/application_providers.dart';
 import '../../applications/screens/apply_screen.dart';
 import '../../auth/app_user.dart';
 import '../../auth/auth_providers.dart';
+import '../../bookmarks/bookmark_button.dart';
 import '../opportunity.dart';
 
 class OpportunityDetailScreen extends ConsumerWidget {
@@ -16,33 +18,57 @@ class OpportunityDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appUserState = ref.watch(currentAppUserProvider);
+    final appUser = appUserState.value;
+    final isStudent = appUser != null && appUser.role == UserRole.student;
 
     return Scaffold(
-      appBar: AppBar(title: Text(opportunity.startupName)),
+      appBar: AppBar(
+        title: const Text('Opportunity details'),
+        actions: [
+          if (isStudent) BookmarkButton(studentUid: appUser.uid, opportunity: opportunity),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           children: [
-            Text(opportunity.title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 4),
-            Text('Posted by ${opportunity.startupName}', style: Theme.of(context).textTheme.bodyMedium),
-            if (opportunity.createdAt != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                timeago.format(opportunity.createdAt!),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
+            Row(
               children: [
-                Chip(label: Text(opportunity.category.label)),
-                Chip(label: Text(opportunity.location.label)),
+                InitialAvatar(name: opportunity.startupName, size: 56),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(opportunity.title, style: Theme.of(context).textTheme.titleLarge),
+                      Text(opportunity.startupName, style: Theme.of(context).textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
               ],
             ),
+            const SizedBox(height: 20),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Column(
+                  children: [
+                    _InfoRow(icon: opportunity.category.icon, label: opportunity.category.label),
+                    const Divider(height: 1),
+                    _InfoRow(icon: Icons.place_outlined, label: opportunity.location.label),
+                    if (opportunity.createdAt != null) ...[
+                      const Divider(height: 1),
+                      _InfoRow(
+                        icon: Icons.schedule_rounded,
+                        label: 'Posted ${timeago.format(opportunity.createdAt!)}',
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 24),
-            Text('Description', style: Theme.of(context).textTheme.titleSmall),
+            Text('About', style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Text(opportunity.description),
             if (opportunity.skillsRequired.isNotEmpty) ...[
@@ -55,19 +81,35 @@ class OpportunityDetailScreen extends ConsumerWidget {
                 children: opportunity.skillsRequired.map((s) => Chip(label: Text(s))).toList(),
               ),
             ],
-            const SizedBox(height: 32),
-            appUserState.when(
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
-              data: (appUser) {
-                if (appUser == null || appUser.role != UserRole.student) {
-                  return const SizedBox.shrink();
-                }
-                return _ApplySection(opportunity: opportunity, appUser: appUser);
-              },
-            ),
           ],
         ),
+      ),
+      bottomNavigationBar: isStudent
+          ? SafeArea(
+              minimum: const EdgeInsets.all(16),
+              child: _ApplySection(opportunity: opportunity, appUser: appUser),
+            )
+          : null,
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 12),
+          Text(label, style: Theme.of(context).textTheme.bodyMedium),
+        ],
       ),
     );
   }
@@ -108,16 +150,19 @@ class _ApplySection extends ConsumerWidget {
         }
 
         if (opportunity.status == OpportunityStatus.closed) {
-          return const Text('This opportunity is no longer accepting applications.');
+          return const Text(
+            'This opportunity is no longer accepting applications.',
+            textAlign: TextAlign.center,
+          );
         }
 
-        return ElevatedButton(
+        return FilledButton(
           onPressed: () => Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => ApplyScreen(opportunity: opportunity, appUser: appUser),
             ),
           ),
-          child: const Text('Apply'),
+          child: const Text('Apply now'),
         );
       },
     );

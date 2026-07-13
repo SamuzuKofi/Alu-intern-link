@@ -18,3 +18,7 @@ final opportunitiesForStartupProvider = StreamProvider.family<List<Opportunity>,
 ) {
   return ref.watch(opportunityRepositoryProvider).watchOpportunitiesForStartup(startupId);
 });
+
+final opportunityByIdProvider = StreamProvider.family<Opportunity?, String>((ref, opportunityId) {
+  return ref.watch(opportunityRepositoryProvider).watchOpportunityById(opportunityId);
+});

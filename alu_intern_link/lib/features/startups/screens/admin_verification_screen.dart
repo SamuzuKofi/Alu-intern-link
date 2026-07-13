@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/widgets/initial_avatar.dart';
 import '../startup.dart';
 import '../startup_providers.dart';
 
@@ -63,10 +64,22 @@ class _PendingStartupCardState extends ConsumerState<_PendingStartupCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(startup.name, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(startup.industry, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
+            Row(
+              children: [
+                InitialAvatar(name: startup.name),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(startup.name, style: Theme.of(context).textTheme.titleMedium),
+                      Text(startup.industry, style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             Text(startup.description),
             if (startup.website != null) ...[
               const SizedBox(height: 8),
