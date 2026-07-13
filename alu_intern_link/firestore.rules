@@ -46,16 +46,23 @@ service cloud.firestore {
     match /opportunities/{opportunityId} {
       allow read: if isSignedIn();
 
-      // Only the owner of a startup that has actually been verified can
-      // post under it - this is the rule that stops an unverified/fake
-      // startup from ever appearing in Discover, enforced server-side.
+      // Only the owner of a startup that has actually been verified (and
+      // not delisted) can post under it - this is the rule that stops an
+      // unverified/fake startup from ever appearing in Discover, enforced
+      // server-side.
       allow create: if isSignedIn() &&
         request.resource.data.postedByUid == request.auth.uid &&
         get(/databases/$(database)/documents/startups/$(request.resource.data.startupId)).data.ownerUid == request.auth.uid &&
-        get(/databases/$(database)/documents/startups/$(request.resource.data.startupId)).data.status == 'verified';
+        get(/databases/$(database)/documents/startups/$(request.resource.data.startupId)).data.status == 'verified' &&
+        get(/databases/$(database)/documents/startups/$(request.resource.data.startupId)).data.isArchived != true;
 
-      // Only whoever posted it can edit it (e.g. open/close toggle).
-      allow update: if isSignedIn() && resource.data.postedByUid == request.auth.uid;
+      // Whoever posted it can edit it (e.g. open/close toggle, or the
+      // startup-archive cascade) - unless an admin has removed it, in
+      // which case only that admin can touch it again (restore it).
+      // Admins can otherwise always update, to perform that removal.
+      allow update: if isSignedIn() &&
+        (isAdmin() ||
+         (resource.data.postedByUid == request.auth.uid && resource.data.removedByAdmin != true));
 
       allow delete: if false;
     }
@@ -83,9 +90,13 @@ service cloud.firestore {
     }
 
     match /bookmarks/{bookmarkId} {
-      // A bookmark's id is always "{studentUid}_{opportunityId}", but we
-      // still check the data fields directly rather than trust the id.
-      allow read: if isSignedIn() && resource.data.studentUid == request.auth.uid;
+      // "Is this bookmarked?" listens on a doc that usually doesn't exist
+      // yet (nothing has been saved there). When a doc doesn't exist,
+      // `resource` is null, so we must allow that case explicitly -
+      // otherwise `resource.data.studentUid` throws and every check of an
+      // unsaved bookmark gets rejected as permission-denied.
+      allow read: if isSignedIn() &&
+        (resource == null || resource.data.studentUid == request.auth.uid);
       allow create: if isSignedIn() && request.resource.data.studentUid == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.studentUid == request.auth.uid;
     }

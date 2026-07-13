@@ -60,15 +60,21 @@ class _OpportunityRow extends ConsumerWidget {
           child: Icon(opportunity.category.icon, color: Theme.of(context).colorScheme.onPrimaryContainer),
         ),
         title: Text(opportunity.title),
-        subtitle: Text('${opportunity.location.label} · tap to view applicants'),
-        trailing: Switch(
-          value: isOpen,
-          onChanged: (value) {
-            ref
-                .read(opportunityRepositoryProvider)
-                .setStatus(opportunity.id, value ? OpportunityStatus.open : OpportunityStatus.closed);
-          },
+        subtitle: Text(
+          opportunity.removedByAdmin
+              ? 'Removed by an ALU admin'
+              : '${opportunity.location.label} · tap to view applicants',
         ),
+        trailing: opportunity.removedByAdmin
+            ? Icon(Icons.block_rounded, color: Theme.of(context).colorScheme.error)
+            : Switch(
+                value: isOpen,
+                onChanged: (value) {
+                  ref
+                      .read(opportunityRepositoryProvider)
+                      .setStatus(opportunity.id, value ? OpportunityStatus.open : OpportunityStatus.closed);
+                },
+              ),
       ),
     );
   }

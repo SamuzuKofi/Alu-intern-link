@@ -66,6 +66,7 @@ class Opportunity {
     required this.skillsRequired,
     required this.postedByUid,
     this.status = OpportunityStatus.open,
+    this.removedByAdmin = false,
     this.createdAt,
   });
 
@@ -79,6 +80,10 @@ class Opportunity {
   final List<String> skillsRequired;
   final String postedByUid;
   final OpportunityStatus status;
+  // Set by an admin to pull a posting off the platform regardless of what
+  // the founder wants - separate from [status] so the founder's own
+  // open/close toggle can't quietly undo an admin's moderation decision.
+  final bool removedByAdmin;
   final DateTime? createdAt;
 
   factory Opportunity.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -94,6 +99,7 @@ class Opportunity {
       skillsRequired: List<String>.from(data['skillsRequired'] as List? ?? const []),
       postedByUid: data['postedByUid'] as String? ?? '',
       status: OpportunityStatus.fromName(data['status'] as String?),
+      removedByAdmin: data['removedByAdmin'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }

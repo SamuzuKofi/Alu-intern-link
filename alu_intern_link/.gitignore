@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Seed script (uses the Firebase Admin SDK) - never commit the service
+# account key, it's a full-access credential for the whole project.
+/tool/node_modules/
+/tool/serviceAccountKey.json

@@ -1,0 +1,11 @@
+{
+  "name": "alu-intern-link-seed",
+  "private": true,
+  "description": "One-off script to fill Firestore with test data via the Firebase Admin SDK.",
+  "scripts": {
+    "seed": "node seed_data.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.1.0"
+  }
+}

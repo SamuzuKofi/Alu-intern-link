@@ -61,11 +61,36 @@ class OpportunityRepository {
       'location': location.name,
       'skillsRequired': skillsRequired,
       'status': OpportunityStatus.open.name,
+      'removedByAdmin': false,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
   Future<void> setStatus(String opportunityId, OpportunityStatus status) {
     return _opportunities.doc(opportunityId).update({'status': status.name});
+  }
+
+  /// Feeds the admin moderation list - every posting regardless of status,
+  /// sorted with the newest first. Fine to load in full at this scale,
+  /// same reasoning as [watchOpenOpportunities].
+  Stream<List<Opportunity>> watchAllOpportunities() {
+    return _opportunities
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map(Opportunity.fromFirestore).toList());
+  }
+
+  Future<void> removeByAdmin(String opportunityId) {
+    return _opportunities.doc(opportunityId).update({
+      'status': OpportunityStatus.closed.name,
+      'removedByAdmin': true,
+    });
+  }
+
+  Future<void> restoreByAdmin(String opportunityId) {
+    return _opportunities.doc(opportunityId).update({
+      'status': OpportunityStatus.open.name,
+      'removedByAdmin': false,
+    });
   }
 }

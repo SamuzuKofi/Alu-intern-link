@@ -2,13 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/initial_avatar.dart';
+import '../../opportunities/screens/admin_opportunities_screen.dart';
 import '../startup.dart';
 import '../startup_providers.dart';
 
 /// Middle tab for admin accounts: a queue of startups waiting to be
-/// verified before their founders can post opportunities.
-class AdminVerificationScreen extends ConsumerWidget {
+/// verified, plus a second tab to moderate live opportunities.
+class AdminVerificationScreen extends StatelessWidget {
   const AdminVerificationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          const TabBar(tabs: [Tab(text: 'Startups'), Tab(text: 'Opportunities')]),
+          const Expanded(
+            child: TabBarView(children: [_PendingStartupsTab(), AdminOpportunitiesScreen()]),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PendingStartupsTab extends ConsumerWidget {
+  const _PendingStartupsTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

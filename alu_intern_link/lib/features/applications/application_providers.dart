@@ -11,20 +11,22 @@ final applicationRepositoryProvider = Provider<ApplicationRepository>((ref) {
 /// The `(opportunityId, studentUid)` here is a Dart record - basically a
 /// small bundle of two values used as the family's key, since this query
 /// needs both pieces of information to know which application to watch.
-final myApplicationForOpportunityProvider =
-    StreamProvider.family<Application?, (String opportunityId, String studentUid)>((ref, key) {
+/// `.autoDispose` clears cached state once nobody's watching, so a stale
+/// error from an earlier session can't linger after sign-out/sign-in.
+final myApplicationForOpportunityProvider = StreamProvider.autoDispose
+    .family<Application?, (String opportunityId, String studentUid)>((ref, key) {
       final (opportunityId, studentUid) = key;
       return ref.watch(applicationRepositoryProvider).watchApplicationFor(opportunityId, studentUid);
     });
 
-final applicationsForStudentProvider = StreamProvider.family<List<Application>, String>((
+final applicationsForStudentProvider = StreamProvider.autoDispose.family<List<Application>, String>((
   ref,
   studentUid,
 ) {
   return ref.watch(applicationRepositoryProvider).watchApplicationsForStudent(studentUid);
 });
 
-final applicationsForOpportunityProvider = StreamProvider.family<List<Application>, String>((
+final applicationsForOpportunityProvider = StreamProvider.autoDispose.family<List<Application>, String>((
   ref,
   opportunityId,
 ) {

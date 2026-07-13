@@ -27,6 +27,7 @@ class Startup {
     required this.ownerUid,
     this.website,
     this.status = StartupStatus.pending,
+    this.isArchived = false,
     this.createdAt,
   });
 
@@ -37,6 +38,10 @@ class Startup {
   final String ownerUid;
   final String? website;
   final StartupStatus status;
+  // A founder can delist their own startup without losing its data or
+  // verification history - separate from [status], which only tracks
+  // whether an admin has verified it.
+  final bool isArchived;
   final DateTime? createdAt;
 
   factory Startup.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -49,6 +54,7 @@ class Startup {
       ownerUid: data['ownerUid'] as String? ?? '',
       website: data['website'] as String?,
       status: StartupStatus.fromName(data['status'] as String?),
+      isArchived: data['isArchived'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }

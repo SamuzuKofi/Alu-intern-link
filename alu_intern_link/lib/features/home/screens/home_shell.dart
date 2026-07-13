@@ -7,12 +7,11 @@ import '../../applications/screens/my_applications_screen.dart';
 import '../../auth/app_user.dart';
 import '../../auth/auth_providers.dart';
 import '../../bookmarks/screens/saved_opportunities_screen.dart';
-import '../../opportunities/opportunity_providers.dart';
 import '../../opportunities/screens/discover_screen.dart';
 import '../../startups/startup.dart';
 import '../../startups/startup_providers.dart';
 import '../../startups/screens/admin_verification_screen.dart';
-import '../../startups/screens/my_startup_screen.dart';
+import '../../startups/screens/my_startups_screen.dart';
 
 /// Main app screen once a user is signed in and onboarded. Holds the
 /// bottom navigation bar; each tab's real content gets built out in a
@@ -41,9 +40,9 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final String middleLabel;
     switch (role) {
       case UserRole.startup:
-        middleTab = MyStartupScreen(ownerUid: widget.appUser.uid);
+        middleTab = MyStartupsScreen(ownerUid: widget.appUser.uid);
         middleIcon = Icons.storefront_outlined;
-        middleLabel = 'My Startup';
+        middleLabel = 'My Startups';
       case UserRole.admin:
         middleTab = const AdminVerificationScreen();
         middleIcon = Icons.verified_outlined;
@@ -181,16 +180,14 @@ class _StatsRow extends ConsumerWidget {
         );
 
       case UserRole.startup:
-        final startup = ref.watch(myStartupProvider(appUser.uid)).value;
-        if (startup == null) return const SizedBox.shrink();
-        final opportunities = ref.watch(opportunitiesForStartupProvider(startup.id)).value ?? [];
+        final startups = ref.watch(myStartupsProvider(appUser.uid)).value ?? [];
+        final verified = startups.where((s) => s.status == StartupStatus.verified).length;
+        final active = startups.where((s) => !s.isArchived).length;
         return Row(
           children: [
-            _StatTile(value: '${opportunities.length}', label: 'Posted'),
-            _StatTile(
-              value: startup.status == StartupStatus.verified ? 'Verified' : 'Pending',
-              label: 'Startup status',
-            ),
+            _StatTile(value: '${startups.length}', label: 'Startups'),
+            _StatTile(value: '$verified', label: 'Verified'),
+            _StatTile(value: '$active', label: 'Active'),
           ],
         );
 
